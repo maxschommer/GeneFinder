@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-YOUR HEADER COMMENT HERE
 
 Max Schommer
 
@@ -35,15 +34,15 @@ def get_complement(nucleotide):
     'A'
     """
     #I added these tests so that the check is comprehensive
-    # TODO: implement this
-    if nucleotide == 'A':
+
+    if nucleotide == 'A': 
     	return 'T'
     elif nucleotide == 'C':
     	return 'G'
     elif nucleotide == 'T':
     	return 'A'
     elif nucleotide == 'G':
-    	return 'C'    
+    	return 'C'
 
 
 def get_reverse_complement(dna):
@@ -58,16 +57,15 @@ def get_reverse_complement(dna):
     'TGAACGCGG'
     """
     #This is sufficient, because there should not be an empty input into this function: the input should be checked from the function that calls get_reverse_complement.
-    # TODO: implement this
     length = len(dna)
     
     rev = ''
     new = ''
-    for n in range(length-1, -1, -1):
+    for n in range(length-1, -1, -1):  # This goes through the list backwards and then puts each element in a new list called rev in reverse order.
         rev = rev + dna[n]
-    for n in range(0,length):
-        new = new + get_complement(rev[n])
-    return new
+    for n in range(0,length):           # This takes the complement of the reverse list
+        new = new + get_complement(rev[n]) 
+    return new                          # Returns reverse complement
 
 
 def rest_of_ORF(dna):
@@ -84,7 +82,6 @@ def rest_of_ORF(dna):
     'ATGAGA'
     """
     #This is comprehensive because the string is assumed to begin with a start codon, so a check is not needed.
-    # TODO: implement this
     
     length = len(dna) - len(dna)%3
     x = 0
@@ -122,15 +119,15 @@ def find_all_ORFs_oneframe(dna):
 
    
     n = 0
-    check = searchforstartcodon(dna) #This makes sure that the oRF starts with a start codon
-    if check == None:
+    check = searchforstartcodon(dna) #This makes sure that the ORF starts with a start codon
+    if check == None:               # Here we rule out the case where there is no more dna left with an ORF
         length = 0
     else: 
-        dna = check
+        dna = check                 # If it passes the test, then dna is defined as the remaining dna after the junk dna is parsed through. 
 
         length = len(dna) - len(dna)%3
     strings = []
-    while n < length:
+    while n < length:               # This loop goes through the gene in groups of three, and calculates the orfs by adding on strings to a list.
         stringleft = searchforstartcodon(dna[n:])
 
         if stringleft == None:
@@ -138,7 +135,7 @@ def find_all_ORFs_oneframe(dna):
         else: # Found start codon
             gene = rest_of_ORF(stringleft)
             strings.append(gene)
-            n = n + len(gene)+3
+            n = len(dna)-len(stringleft)+len(gene)
     return strings
 
 def searchforstartcodon(dna):
@@ -210,28 +207,27 @@ def longest_ORF(dna):
     >>> longest_ORF("ATGCGAATGTAGCATCAAA")
     'ATGCTACATTCGCAT'
     """
-    # TODO: implement this
     length = []
+    bothstrands = find_all_ORFs_both_strands(dna)                       # This sorts the resulting string by shortest to longest, and then returns the last of the string. 
+    bothstrands = sorted(bothstrands, key = lambda seq : len(seq))
+    end = len(bothstrands)-1
+
+    return bothstrands[end]
+
+def ORFsinOrder(dna, longest):
+    """Finds all orfs and returns a list of them in order of shortest to longest.
+    """
+    length = []                                                         #Does the same thing as the previous function, but returns all strings that are longer than a threshold.
     bothstrands = find_all_ORFs_both_strands(dna)
-    if bothstrands == []:
-        return []
-    maxvalue = []
-    for i in range(0, len(bothstrands)):
-        length.append(len(bothstrands[i]))
-    if length == []:
-        maxvalue = 0
-    else:
+    bothstrands = sorted(bothstrands, key = lambda seq : len(seq)) 
+    end = len(bothstrands)-2
+    for i in range(end, 0 , -1):
 
-        maxvalue = max(length)
-    i = 0
-    for i in range(0, len(bothstrands)):
-        if length[i] == maxvalue:
-            indexnum = i
-        else:
-            continue
+        print len(bothstrands[i])
+        if len(bothstrands[i]) < longest:
+
+            return bothstrands[i:]
     
-
-    return bothstrands[i]
         
 
 def longest_ORF_noncoding(dna, num_trials):
@@ -241,12 +237,11 @@ def longest_ORF_noncoding(dna, num_trials):
         dna: a DNA sequence
         num_trials: the number of random shuffles
         returns: the maximum length longest ORF """
-    # TODO: implement this
     counter = 0
-    for i in range(0, num_trials):
+    for i in range(0, num_trials):  
         shuffle = shuffle_string(dna)
         length = len(longest_ORF(shuffle))
-        if length >= counter:
+        if length >= counter:                             # Creates a counter that dynamically changes to equal the length of the longest string found.
             counter = length
         else:
             continue
@@ -267,7 +262,6 @@ def coding_strand_to_AA(dna):
         >>> coding_strand_to_AA("ATGCCCGCTTT")
         'MPA'
     """
-    # TODO: implement this
 
     proteins = ''
     for i in range(0, len(dna)-len(dna)%3, 3):
@@ -284,20 +278,24 @@ def gene_finder(dna):
         dna: a DNA sequence
         returns: a list of all amino acid sequences coded by the sequence dna.
     """
-    # TODO: implement this
-    num_trials = 20
-    allorfs = find_all_ORFs_both_strands(dna)
+    len(dna)
+    num_trials = 1500                                                                   
+    allorfs = find_all_ORFs_both_strands(dna)                                                 
     longest = len(longest_ORF(dna))
     amirandom = longest_ORF_noncoding(dna, num_trials)
-    likelyhoodthatimnotrandom = 1.0*longest/amirandom
-    print likelyhoodthatimnotrandom
-    print longest_ORF(dna)
-    return coding_strand_to_AA(longest_ORF(dna))
+    finallist =  ORFsinOrder(dna , amirandom)
+    translated = []
+    for i in range(0, len(finallist)-1):                                                #This loop translates all of the resulting potential genes into their final format. 
 
-if __name__ == "__main__":
+        translated.append(coding_strand_to_AA(finallist[i]))
+    return translated
+
+
+
+
+
+if __name__ == "__main__": 
     import doctest
-    doctest.testmod(
-)
+    doctest.testmod()
 
-gene_finder("ATGCGAATGTAGCATCAAA")
-print load_seq
+mygenes = gene_finder(load_seq("./data/X73525.fa"))                         #mygenes is the final variable that contains all the potential genes above a threshold. 
